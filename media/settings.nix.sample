@@ -1,0 +1,13 @@
+{
+  rssHost = "r.example.eu";
+  dnsHost = "dns.example.eu";
+  audioHost = "a.example.eu";
+  cloudHost = "c.example.eu";
+  gotifyHost = "p.example.eu";
+  hostName = "myhostname";
+  user = {
+    name = "cooluser";
+    sshKey = "ssh-ed25519 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA name@host";
+  };
+}
+
