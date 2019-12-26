@@ -99,7 +99,8 @@ in
     coredns = {
       enable = true;
       config = ''
-	(blockproxy) {
+	dns://.:53 tls://.:853 https://.:453 {
+	  tls /var/lib/acme/${settings.dnsHost}/full.pem /var/lib/acme/${settings.dnsHost}/key.pem
 	  whoami
 	  errors
 	  debug
@@ -115,17 +116,6 @@ in
 	  }
 	  cache 60
 	}
-	dns://.:53 {
-	  import blockproxy
-	}
-	tls://.:853 {
-	  tls /var/lib/acme/${settings.dnsHost}/full.pem /var/lib/acme/${settings.dnsHost}/key.pem
-	  import blockproxy
-	}
-	https://.:453 {
-	  tls /var/lib/acme/${settings.dnsHost}/full.pem /var/lib/acme/${settings.dnsHost}/key.pem
-	  import blockproxy
-	}
       '';
     };
   };
@@ -138,7 +128,12 @@ in
     firewall.allowedUDPPorts = [ 53 ];
   };
 
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    permitRootLogin = "no";
+    passwordAuthentication = false;
+    challengeResponseAuthentication = false;
+  };
   security.sudo.extraConfig = ''
     %wheel      ALL=(ALL:ALL) NOPASSWD: ALL
   '';
