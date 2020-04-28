@@ -20,6 +20,7 @@ in
   imports =
     [
       ./hardware-configuration.nix
+      ./private.nix
     ];
 
   boot.loader.grub.enable = true;
@@ -30,17 +31,18 @@ in
   #  enable = true;
   #  allowReboot = true;
   #};
-
+  console = {
+    font = "Lat2-Terminus16";
+    keyMap = "us";
+  };
   i18n = {
-    consoleFont = "Lat2-Terminus16";
-    consoleKeyMap = "us";
     defaultLocale = "en_US.UTF-8";
   };
 
   time.timeZone = "Europe/Berlin";
 
   environment.systemPackages = with pkgs; [
-    wget vim htop tmux tree restic ncdu git httpie bind vgo2nix
+    wget vim htop tmux tree restic ncdu git httpie bind vgo2nix yarn openvpn protonvpn-cli
   ];
 
   services = {
@@ -72,9 +74,16 @@ in
         enableACME = true;
         forceSSL = true;
         locations."/".proxyPass = "http://127.0.0.1:44444";
+        locations."/".proxyWebsockets = true;
+        locations."/".extraConfig = ''
+          proxy_connect_timeout   7m;
+          proxy_send_timeout      7m;
+          proxy_read_timeout      7m;
+        '';
       };
     };
     nextcloud = {
+      package = pkgs.nextcloud18;
       enable = true;
       hostName = settings.cloudHost;
       nginx.enable = true;
@@ -95,6 +104,7 @@ in
     miniflux = {
       enable = true;
       config.LISTEN_ADDR = "127.0.0.1:50000";
+      config.BASE_URL = "https://" + settings.rssHost;
     };
     coredns = {
       enable = true;
@@ -124,8 +134,8 @@ in
 
   networking = {
     hostName = settings.hostName;
-    firewall.allowedTCPPorts = [ 53 80 443 853 ];
-    firewall.allowedUDPPorts = [ 53 ];
+    firewall.allowedTCPPorts = [ 80 443 453 853 ];
+    firewall.allowedUDPPorts = [ ];
   };
 
   services.openssh = {
@@ -161,6 +171,8 @@ in
     timerConfig.OnCalendar = "*-*-* 02:00:00";
     timerConfig.Unit = "blockdns-update-cron.service";
   };
+  security.acme.acceptTerms = true;
+  security.acme.email = settings.email;
 
   # This value determines the NixOS release with which your system is to be
   # compatible, in order to avoid breaking some software such as database
